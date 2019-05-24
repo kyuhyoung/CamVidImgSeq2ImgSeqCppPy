@@ -8,7 +8,7 @@ build
 ### C++
 
 ```
-make
+$ make
 ```
 
 ### Python
