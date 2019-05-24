@@ -15,6 +15,24 @@ $ make
 
 None has to be done.
 
+## Run
+
+run
+
+### C++
+
+Commnt Python part of [CamVidImgSeq2ImgSeq.sh](CamVidImgSeq2ImgSeq.sh) and uncomment C++ part and then.
+```
+$ run CamVidImgSeq2ImgSeq.sh 
+```
+
+### Python
+
+Commnt C++ part of [CamVidImgSeq2ImgSeq.sh](CamVidImgSeq2ImgSeq.sh) and uncomment Python part and then.
+```
+$ run CamVidImgSeq2ImgSeq.sh 
+```
+
 ## TODO
 * Do C++ version
 
