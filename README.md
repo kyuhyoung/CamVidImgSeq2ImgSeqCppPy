@@ -1,5 +1,5 @@
 # CamVidImgSeq2ImgSeqCppPy
-Save either Camera feed / Video file feed / Image sequence under a folder to Image sequence using C++ or Python
+Save either Camera feed / Video file feed / Image sequence as an Image sequence under a given directory using C++ or Python
 
 ## Build
 
