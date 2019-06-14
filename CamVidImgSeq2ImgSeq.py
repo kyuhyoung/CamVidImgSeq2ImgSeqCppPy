@@ -32,7 +32,7 @@ def init_cam(idx_cam_or_video_path):
         if kam is None or not kam.isOpened():
             print('Unable to open camera with index : ', idx_cam);   exit()
 
-    print('Camera : {} is opened'.format(id_cam)); #exit()
+    print('Camera : {} is opened'.format(idx_cam)); #exit()
     w_h_cam = (int(kam.get(cv2.CAP_PROP_FRAME_WIDTH)), int(kam.get(cv2.CAP_PROP_FRAME_HEIGHT))) # float
     return kam, w_h_cam   
 
