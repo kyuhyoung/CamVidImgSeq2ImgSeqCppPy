@@ -97,7 +97,6 @@ def crop_image(im_bgr, xy_previous, xy_shift, wh_cropped):
     is_x_bouncing, is_y_bouncing = False, False;
     h_ori, w_ori = im_bgr.shape[:2]
     x_prev, y_prev = xy_previous;   w_cropped, h_cropped = wh_cropped;  x_shift, y_shift = xy_shift
-    
     x_cropped = x_prev + x_shift
     if x_cropped < 0:
         x_cropped = float(0)
@@ -105,7 +104,6 @@ def crop_image(im_bgr, xy_previous, xy_shift, wh_cropped):
     if x_cropped + w_cropped > w_ori:
         x_cropped = float(w_ori - w_cropped)
         is_x_bouncing = True
-
     y_cropped = y_prev + y_shift
     if y_cropped < 0:
         y_cropped = float(0)
@@ -113,13 +111,11 @@ def crop_image(im_bgr, xy_previous, xy_shift, wh_cropped):
     if y_cropped + h_cropped > h_ori:
         y_cropped = float(h_ori - h_cropped)
         is_y_bouncing = True
-
     xy_previous = [x_cropped, y_cropped]
     if is_x_bouncing:
         xy_shift[0] *= -1.0
     if is_y_bouncing:
         xy_shift[1] *= -1.0
-
     x_cropped_i, y_cropped_i = round_i(x_cropped), round_i(y_cropped)
     im_bgr_cropped = im_bgr[y_cropped_i : y_cropped_i + h_cropped, x_cropped_i : x_cropped_i + w_cropped]
     #cv2.rectangle(im_bgr, (x_cropped_i, y_cropped_i), (x_cropped_i + w_cropped, y_cropped_i + h_cropped), (0, 0, 255), 1);  cv2.imshow('cropped', im_bgr)
