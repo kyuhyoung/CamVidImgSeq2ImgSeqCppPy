@@ -16,8 +16,10 @@ def main():
     idx_cam_or_fn_video_or_img_folder = os.path.expanduser(opt.cam_or_vid_or_seq)
     dir_save = os.path.expanduser(opt.save_dir)
     frm_start = opt.frm_start
-    margin_lrtb = map(float, opt.margin_lrtb.split(','))
-    xy_shift = map(float, opt.shift_xy.split(','))
+    #margin_lrtb = map(float, opt.margin_lrtb.split(','))
+    #xy_shift = map(float, opt.shift_xy.split(','))
+    margin_lrtb = list(map(float, opt.margin_lrtb.split(',')))
+    xy_shift = list(map(float, opt.shift_xy.split(',')))
     return camVidImgSeq2ImgSeq(idx_cam_or_fn_video_or_img_folder, dir_save, frm_start, margin_lrtb, xy_shift)
 
 if __name__ == '__main__':
