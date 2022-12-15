@@ -16,15 +16,18 @@ def is_video_file(fn):
         print('this is NOT video file')
     exit()      
     '''
-    return fn.endswith(ext)
+    #t0 = fn.endswith(ext)
+    #print(f't0 : {t0}');    exit(0)
+    return fn.lower().endswith(ext)
 
 def init_cam(idx_cam_or_video_path):
+    
+    #print(f'idx_cam_or_video_path : {idx_cam_or_video_path}');  exit(0);
     if is_video_file(idx_cam_or_video_path):
         path_video = idx_cam_or_video_path 
-        #print('this is video file : ', path_video)
         kam = cv2.VideoCapture(path_video)                          
         if kam is None or not kam.isOpened():
-            print('Unable to open video file at : ', path_video);   exit()
+            print(f'Unable to open video file at : {path_video}');   exit()
     else:
         idx_cam = int(idx_cam_or_video_path) 
         print('this is camera index at : ', idx_cam)
@@ -32,7 +35,7 @@ def init_cam(idx_cam_or_video_path):
         if kam is None or not kam.isOpened():
             print('Unable to open camera with index : ', idx_cam);   exit()
 
-    print('Camera : {} is opened'.format(idx_cam)); #exit()
+        print('Camera : {} is opened'.format(idx_cam)); #exit()
     w_h_cam = (int(kam.get(cv2.CAP_PROP_FRAME_WIDTH)), int(kam.get(cv2.CAP_PROP_FRAME_HEIGHT))) # float
     return kam, w_h_cam   
 
@@ -124,8 +127,29 @@ def crop_image(im_bgr, xy_previous, xy_shift, wh_cropped):
 def round_i(x):
     return int(round(x))
 
+def mirror_image_cv(im_bgr, mirror):
+    if mirror.startswith('hor'):
+        im_bgr = cv2.flip(im_bgr, flipCode = 1)
+    elif mirror.startswith('ver'):
+        im_bgr = cv2.flip(im_bgr, flipCode = 0)
+    return im_bgr      
 
-def camVidImgSeq2ImgSeq(idx_cam_or_fn_video_or_img_folder, dir_seq, idx_frm_start = 0, margin_lrtb=[0, 0, 0, 0], xy_shift=[0, 0]):
+
+def rotate_image_cv(im_bgr, rotation):
+    # rotate ccw
+    if 'left' == rotation:
+        im_bgr = cv2.transpose(im_bgr)
+        im_bgr = cv2.flip(im_bgr, flipCode=0)
+    # rotate cw
+    elif 'right' == rotation:
+        im_bgr = cv2.transpose(im_bgr)
+        im_bgr = cv2.flip(im_bgr, flipCode=1)
+    elif '180' == rotation:
+        im_bgr = cv2.flip(im_bgr, flipCode=1)
+        im_bgr = cv2.flip(im_bgr, flipCode=0)
+    return im_bgr
+
+def camVidImgSeq2ImgSeq(idx_cam_or_fn_video_or_img_folder, dir_seq, idx_frm_start = 0, margin_lrtb=[0, 0, 0, 0], xy_shift=[0, 0], rotation='none', mirror='none'):
     
     idx_frm = idx_frm_start;
     is_this_image_sequence = False
@@ -149,32 +173,54 @@ def camVidImgSeq2ImgSeq(idx_cam_or_fn_video_or_img_folder, dir_seq, idx_frm_star
     while(idx_frm < len(li_path_img) if is_this_image_sequence else cap.isOpened()):
         ret = False
         if is_this_image_sequence:
-            frame = cv2.imread(li_path_img[idx_frm])
+            im_bgr = cv2.imread(li_path_img[idx_frm])
             ret = True  
             id_img = get_exact_file_name_from_path(li_path_img[idx_frm])
         else:
-            ret, frame = cap.read()
+            ret, im_bgr = cap.read()
             id_img = '%05d' % (idx_frm)
         if True == ret:
+            '''
+            #   test
+            im_bgr_left = rotate_image_cv(im_bgr, 'left') 
+            im_bgr_right = rotate_image_cv(im_bgr, 'right') 
+            im_bgr_180 = rotate_image_cv(im_bgr, '180')
+            im_bgr_hori = mirror_image_cv(im_bgr, 'hori')
+            im_bgr_vert = mirror_image_cv(im_bgr, 'vert')
+            cv2.imwrite("im_bgr_ori.png", im_bgr)
+            cv2.imwrite("im_bgr_left.png", im_bgr_left)
+            cv2.imwrite("im_bgr_right.png", im_bgr_right)
+            cv2.imwrite("im_bgr_180.png", im_bgr_180)
+            cv2.imwrite("im_bgr_hori.png", im_bgr_hori)
+            cv2.imwrite("im_bgr_vert.png", im_bgr_vert)
+            exit(0);
+            '''
             if not xy_offset:
                 xy_offset = [float(margin_lrtb[0]), float(margin_lrtb[2])]
             if not wh_cropped:
-                h_ori, w_ori = frame.shape[:2]
+                h_ori, w_ori = im_bgr.shape[:2]
                 wh_cropped = [round_i(w_ori - margin_lrtb[0] - margin_lrtb[1]), round_i(h_ori - margin_lrtb[2] - margin_lrtb[3])]  
-            frame, xy_offset, xy_shift = crop_image(frame, xy_offset, xy_shift, wh_cropped)
+            im_bgr, xy_offset, xy_shift = crop_image(im_bgr, xy_offset, xy_shift, wh_cropped)
+            if 'none' != rotation:
+                im_bgr = rotate_image_cv(im_bgr, rotation)    
+            if 'none' != mirror:
+                im_bgr = mirror_image_cv(im_bgr, mirror)
             '''
             frame = cv2.flip(frame,0)
             # write the flipped frame
             out.write(frame)
             '''
-            fn_img = os.path.join(dir_seq, id_img + '.bmp')
+            #fn_img = os.path.join(dir_seq, id_img + '.bmp')
+            fn_img = os.path.join(dir_seq, id_img + '.png')
             print('fn_img : ', fn_img)
             idx_frm += 1
-            cv2.imwrite(fn_img, frame)
+            cv2.imwrite(fn_img, im_bgr)
+            '''
             cv2.imshow('frame',frame)
             key = cv2.waitKey(1) & 0xFF
             if 27 == key or ord('q') == key:
                 break
+            '''    
         else:
             break
     # Release everything if job is finished
@@ -182,5 +228,5 @@ def camVidImgSeq2ImgSeq(idx_cam_or_fn_video_or_img_folder, dir_seq, idx_frm_star
         cap.release()
 
     #out.release()
-    cv2.destroyAllWindows()
+    #cv2.destroyAllWindows()
 

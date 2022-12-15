@@ -11,6 +11,8 @@ def main():
     parser.add_argument('--frm_start', type=int, default=0, help='frame index of image sequence to start to read')
     parser.add_argument('--margin_lrtb', type=str, default='0,0,0,0', help='left, right, top and bottom margin of the first frame for crop process. "0, 0, 0, 0" means no cropping.')
     parser.add_argument('--shift_xy', type=str, default='0.0,0.0', help='x and y shift while cropping. "0.0, 0.0" means no shift')
+    parser.add_argument('--rotation', type=str, default='none', choices=['none', 'left', 'right', '180'], help='rotate the (extracted and cropped) mage. "none" means no rotation')
+    parser.add_argument('--mirror', type=str, default='none', choices=['none', 'hori', 'vert'], help='Mirror the (extracted, cropped and rotated) image. "none" means no mirroring')
     opt = parser.parse_args()
     print(opt)
     idx_cam_or_fn_video_or_img_folder = os.path.expanduser(opt.cam_or_vid_or_seq)
@@ -20,7 +22,9 @@ def main():
     #xy_shift = map(float, opt.shift_xy.split(','))
     margin_lrtb = list(map(float, opt.margin_lrtb.split(',')))
     xy_shift = list(map(float, opt.shift_xy.split(',')))
-    return camVidImgSeq2ImgSeq(idx_cam_or_fn_video_or_img_folder, dir_save, frm_start, margin_lrtb, xy_shift)
+    rotation = opt.rotation
+    mirror = opt.mirror
+    return camVidImgSeq2ImgSeq(idx_cam_or_fn_video_or_img_folder, dir_save, frm_start, margin_lrtb, xy_shift, rotation, mirror)
 
 if __name__ == '__main__':
     '''
